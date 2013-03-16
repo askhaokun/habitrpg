@@ -69,6 +69,15 @@ userAccess = (store) ->
   Get user with API token
 ###
 REST = (store) ->
+  store.query.expose "users", "authenticate", (email, hashed_password) ->
+    @where('email').equals(email)
+      .where('password').equals(hashed_password)
+      .findOne()
+
+  store.queryAccess "users", "authenticate", (email, hashed_password, accept, err) ->
+    return accept(true) if email && hashed_password
+    accept(false) # only user has id & token
+
   store.query.expose "users", "withIdAndToken", (uid, token) ->
     @where("id").equals(uid)
       .where('apiToken').equals(token)
